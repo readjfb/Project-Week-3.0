@@ -64,8 +64,18 @@ public class GeneticAlgo{
                 score += prevScores[i]*100;
             }
             else {
-                //generate a random number to switch it up
-                score += Math.abs(dylan.getNextNormalValue() * 100);
+                 ArrayList<Integer> allStudentIds = db.getAllStudentIds();
+
+            	//Chooses random students until it finds one from that year
+                boolean choseStudent = false;
+                while(!choseStudent){
+                	int rand = (int)(Math.random() * allStudentIds.size());
+                	int choice = db.getPrevYears(allStudentIds.get(rand))[i];
+                	if(choice > 0){ 
+                		score += choice * 100;
+                		choseStudent = true;
+                	}
+                }
             }
         }
         return score;
@@ -144,10 +154,34 @@ public class GeneticAlgo{
 		if(v.getSize() < v.getMinStudents()){
 			return 0;
 		 }
-		//totalScore+=100*v.getGenderScore();
 
+		projectScore+=100*v.getGenderScore();
 		return projectScore;
 	}
+
+	/**
+	 * getGenderScore
+	 *
+	 * gender distribution heuristic
+	 *
+	 * @param p
+	 * @returns project gender score.
+	 * 		lower value when project's proportion of boys or girls is extremely low
+	 */
+	//Returns heuristic evaluation of gender distribution for a project
+    private double getGenderScore(Project p){
+    	ArrayList<Person> students = p.getEnrolledStudents();
+    	double proportion = 0;
+    	for(int i = 0 ; i < students.size(); i++){
+    		proportion += (students.get(i).getGender().equals("M") ? 1:0);
+
+    	}
+    	proportion /= students.size(); 
+
+    	//Heuristic curve based on gender proportion
+    	//Only significant decrease for extreme gender differences
+    	return -1 / Math.pow(Math.sin(Math.PI * proportion), 0.1);
+    }
 
 	/**
 	 * NEEDS JAVADOC

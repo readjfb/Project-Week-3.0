@@ -92,6 +92,7 @@ public class Person{
 
 	public Person getClone(){
 		Person p = new Person(personID, currentPreference, score);
+		p.setGender(this.gender);
 		p.setProjectIDs(prefProjectIDs.clone());
 		return p;
 	}
