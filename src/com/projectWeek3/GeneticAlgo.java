@@ -180,8 +180,7 @@ public class GeneticAlgo{
 	 * @param lo, hi
 	 * @return
 	 */
-	private void sort(int lo, int hi){
-
+	private void sort(int lo, int hi) {
 		//Base case
 		if (hi <= lo)
 			return;
