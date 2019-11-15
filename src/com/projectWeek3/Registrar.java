@@ -322,7 +322,7 @@ class Registrar {
         ArrayList<Person> studentsInProject = new ArrayList<Person>();
 
         Person curPerson;
-        int scores[] = new int[9];
+        int[] scores = new int[9];
 
         saver.write(new ArrayList<>(Arrays.asList("ID", "ChoiceNum", "ProjID", "Gender", "Grade", "Score")));
 

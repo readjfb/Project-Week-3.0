@@ -137,7 +137,7 @@ public class Database {
     */
     public int[] getPrevYears(int studentId) {
         //returns a list of previous three years
-        int prevYears[] = new int[3];
+        int[] prevYears = new int[3];
         String sql;
 
         sql = "SELECT Rank18, Rank17, Rank16 FROM StudentPrevAvgs WHERE StudentID = (?)";

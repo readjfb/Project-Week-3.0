@@ -3,7 +3,7 @@ package com.projectWeek3;
 import java.util.ArrayList;
 
 public class RunGenetic{
-	public static void main(String args[]){
+	public static void main(String[] args){
 		int totalGenerations = 10000;
 		int populationSize = 100;
 
@@ -23,7 +23,7 @@ public class RunGenetic{
 			gen.killAndMate();
 			gen.sort();
 		}
-		System.out.println("");
+		System.out.println();
 
 		ArrayList<Integer> badProjects = gen.getTopReg().outputResults();
 		System.out.println("Bad = " + badProjects);
@@ -42,7 +42,7 @@ public class RunGenetic{
 				gen2.killAndMate();
 				gen2.sort();
 			}
-			System.out.println("");
+			System.out.println();
 			gen2.getTopReg().outputResultsToCSV();
 		}
 		else {

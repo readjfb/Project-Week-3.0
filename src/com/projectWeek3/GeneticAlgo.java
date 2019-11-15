@@ -1,6 +1,8 @@
 package com.projectWeek3;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GeneticAlgo{
 	private ArrayList<Pair<Double,Registrar>> population = new ArrayList<Pair<Double,Registrar>>();
@@ -11,7 +13,6 @@ public class GeneticAlgo{
 	private StatWizard dylan;
 	private Database db;
 	private int size;
-	private double totalScore;
 	private String url;
 
 	/**
@@ -45,12 +46,18 @@ public class GeneticAlgo{
 	}
 
 	/**
-	 * NEEDS JAVADOC
+	 * Calculates a student's score, based soley on previous project placement data
+	 *
+	 * Calculates via sum of previous placements * 100
+	 *
+	 * Iff student was not in a project in a given year, they are given a random value from the normal distribution of
+	 * projects
+	 *
 	 * @param studentId
 	 * @return
 	 */
 	private int calculateScore(int studentId) {
-        int prevScores[] = db.getPrevYears(studentId);
+        int[] prevScores = db.getPrevYears(studentId);
         int score=0;
         for (int i=0; i<3;i++){
             if (prevScores[i]>0) {
@@ -66,6 +73,7 @@ public class GeneticAlgo{
 
 	/**
 	 * Populate Algorithm with size people
+	 *
 	 * @param size -number of students
 	 * @return
 	 */
@@ -85,8 +93,8 @@ public class GeneticAlgo{
 	public void fillProjects(){
 		for(int i=0;i<this.population.size();i++){
 			Registrar temp = fillRegistrar(this.population.get(i).getValue());
-			evaluateSolutionToTotalScore(temp);
-			double val = totalScore;
+
+			double val = evaluateSolutionToTotalScore(temp);
 			this.population.set(i,new Pair<Double,Registrar>(val,temp));
 		}
 	}
@@ -96,32 +104,49 @@ public class GeneticAlgo{
 	 * @param reg
 	 * @return
 	 */
-	public void evaluateSolutionToTotalScore(Registrar reg){
+	public double evaluateSolutionToTotalScore(Registrar reg){
 		HashMap<Integer, Project> allProjects = reg.getProjects();
-		totalScore = 0;
-		allProjects.forEach((k,v) -> addProjectVal(v));
+
+		double totalScore = 0;
+		for (Map.Entry<Integer, Project> entry : allProjects.entrySet()) {
+			Integer k = entry.getKey();
+			Project v = entry.getValue();
+			totalScore += getProjectVal(v);
+		}
+
+		//TODO should this do something to compensate to get rid of folks who were not placed?
 		ArrayList<Person> arr = reg.getUnlucky();
+
+		return totalScore;
 	}
 
 	/**
-	 * NEEDS JAVADOC
+	 * getProjectVal
+	 *
+	 * heuristic
+	 *
 	 * @param v
-	 * @return
+	 * @returns project score.
+	 * 		0 if project is underfilled
+	 * 		Otherwise, adds the sum of student's scores, as calculated by calculatedStudentVal
 	 */
-	public void addProjectVal(Project v){
+	public double getProjectVal(Project v){
 		ArrayList<Person> arr = v.getEnrolledStudents();
-		if (arr.size() == 0) return;
+		if (arr.size() == 0) return 0;
+
 		double projectScore = 0;
+
 		for(int i=0;i<arr.size();i++){
-			projectScore+=studentVal(arr.get(i));
+			projectScore+= calculatedStudentVal(arr.get(i));
 		}
 
-		//Does not add anything to totalScore if it is underfilled, to devalue underfilled projects
-		if(v.getSize() < v.getMinStudents()){ //Devalues underfilled projects
-			return;	
+		//Devalues underfilled projects
+		if(v.getSize() < v.getMinStudents()){
+			return 0;
 		 }
-		totalScore += projectScore;
 		//totalScore+=100*v.getGenderScore();
+
+		return projectScore;
 	}
 
 	/**
@@ -129,13 +154,13 @@ public class GeneticAlgo{
 	 * @param s
 	 * @return
 	 */
-	public double studentVal(Person s){
+	public double calculatedStudentVal(Person s){
 		double scaler = s.getScore();
-		double choicenum = s.getCurrentPreference();
-		double numerator = (Math.pow(choicenum,2)*-1)+65;
+		double choiceNum = s.getCurrentPreference();
+		double numerator = (Math.pow(choiceNum,2)*-1)+65;
 
 		double denom1 = 200/scaler;
-		double denom2 = Math.floor((1/5.0)*choicenum)+1;
+		double denom2 = Math.floor((1/5.0)*choiceNum)+1;
 
 		double studentscore = numerator/(denom1+denom2);
 		return studentscore/2;
@@ -204,9 +229,9 @@ public class GeneticAlgo{
 
 	public void killAndMate(){
 		for(int i=0;((2*this.size)/3)+(i/2)<this.size;i+=2){
-			Registrar temp = matePair(this.population.get(i).getValue(),this.population.get(i+1).getValue());
-			evaluateSolutionToTotalScore(temp);
-			this.population.set(((2*this.size)/3)+(i/2), new Pair<Double, Registrar>(totalScore,temp));
+			Registrar pair = matePair(this.population.get(i).getValue(),this.population.get(i+1).getValue());
+
+			this.population.set(((2*this.size)/3)+(i/2), new Pair<Double, Registrar>(evaluateSolutionToTotalScore(pair), pair));
 		}
 	}
 
