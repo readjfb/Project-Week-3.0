@@ -61,7 +61,7 @@ public class Database {
             return rs.getInt(1);
 
         } catch (SQLException e) {
-            //System.out.println("Error in getPreference: " + studentId + " " + preference + e.getMessage());
+            System.out.println("Error in getPreference: " + studentId + " " + preference + e.getMessage());
         }
         return Integer.MIN_VALUE;
     }
@@ -140,7 +140,7 @@ public class Database {
         int[] prevYears = new int[3];
         String sql;
 
-        sql = "SELECT Rank18, Rank17, Rank16 FROM StudentPrevAvgs WHERE StudentID = (?)";
+        sql = "SELECT Rank19, Rank18, Rank17 FROM StudentPrevAvgs WHERE StudentID = (?)";
 
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -275,4 +275,21 @@ public class Database {
         return AllValues;
     }
 
+    public int getPrefNumForProj(int studentId, int projId){
+        String sql = "SELECT prefnum FROM Raw WHERE studentId = (?) and projID=(?)";
+        ArrayList<Integer> IDValues = new ArrayList<Integer>();
+
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setDouble(1, studentId);
+            stmt.setDouble(2, projId);
+
+            ResultSet rs = stmt.executeQuery();
+            return rs.getInt(1);
+
+        } catch (SQLException e) {
+            System.out.println("Error in getPrefNumForProj: " + studentId + " " + projId + e.getMessage());
+        }
+        return Integer.MIN_VALUE;
+    }
 }

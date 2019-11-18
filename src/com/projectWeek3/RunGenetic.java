@@ -3,9 +3,11 @@ package com.projectWeek3;
 import java.util.ArrayList;
 
 public class RunGenetic{
+
 	public static void main(String[] args){
-		int totalGenerations = 10000;
-		int populationSize = 100;
+
+		int totalGenerations = 100; //10000
+		int populationSize = 100; //100
 
 		System.out.println("Setting Up Algorithm #1");
 		ArrayList<Integer> test = new ArrayList<Integer>();

@@ -5,14 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GeneticAlgo{
-	private ArrayList<Pair<Double,Registrar>> population = new ArrayList<Pair<Double,Registrar>>();
+	private ArrayList<Pair<Double,Registrar>> regPopulation = new ArrayList<Pair<Double,Registrar>>();
 	private ArrayList<Pair<Double,Registrar>> aux = new ArrayList<Pair<Double,Registrar>>();
 	private ArrayList<Person> allPeople = new ArrayList<Person>();
 	private HashMap<Integer, Project> allCourses = new HashMap<>();
 	private ArrayList<Integer> underfilledProjects;
 	private StatWizard dylan;
 	private Database db;
-	private int size;
+	private int numRegistrars;
 	private String url;
 
 	/**
@@ -28,60 +28,37 @@ public class GeneticAlgo{
 		db = new Database(url);
 
 		this.url=url;
-        ArrayList<Integer> tempList = db.getAllStudentIds();
+        ArrayList<Integer> tempStuIds = db.getAllStudentIds();
 
         this.dylan = new StatWizard(db.getAllAverages()); //dylan is the guy who wrote the stat stuff
 
-        for (int i=0; i < tempList.size(); i++) {
-            Person p = new Person(tempList.get(i), calculateScore(tempList.get(i)), db.getGender(tempList.get(i)));
+		//Sets up allPeople AL to hold all the student data
+        for (int i=0; i < tempStuIds.size(); i++) {
+            Person p = new Person(tempStuIds.get(i), calculateScore(tempStuIds.get(i)), db.getGender(tempStuIds.get(i)));
             p.setProjectIDs(db.getPreferences(p.getPersonID()));
 			this.allPeople.add(p);
         }
 
-        tempList = db.getAllCourseIds();
-//        int pid;
-		for (Integer pid : tempList) {
+        //Sets up allCourses AL to hold all the student data
+		ArrayList<Integer> tempProjIds  = db.getAllCourseIds();
+		for (Integer pid : tempProjIds) {
 			allCourses.put(pid, new Project(pid, db.getMaxStudents(pid), db.getMinStudents(pid)));
 		}
 	}
 
 	/**
-	 * Calculates a student's score, based soley on previous project placement data
-	 *
-	 * Calculates via sum of previous placements * 100
-	 *
-	 * Iff student was not in a project in a given year, they are given a random value from the normal distribution of
-	 * projects
-	 *
-	 * @param studentId
-	 * @return
-	 */
-	private int calculateScore(int studentId) {
-        int[] prevScores = db.getPrevYears(studentId);
-        int score=0;
-        for (int i=0; i<3;i++){
-            if (prevScores[i]>0) {
-                score += prevScores[i]*100;
-            }
-            else {
-                //generate a random number to switch it up
-                score += Math.abs(dylan.getNextNormalValue() * 100);
-            }
-        }
-        return score;
-    }
-
-	/**
 	 * Populate Algorithm with size people
 	 *
-	 * @param size -number of students
+	 * @param size -number of registrars
+	 *
 	 * @return
 	 */
 	public void populate(int size){
-		this.size = size;
-		for(int i=0;i<size;i++){
-			this.population.add(new Pair<Double,Registrar>(0.0, new Registrar(url, true, allPeople, allCourses, underfilledProjects)));
-			this.aux.add(null);
+		this.numRegistrars = size;
+		for(int i = 0; i < numRegistrars; i++){
+			//The Double is the score of how good the specific registrar is... WE THINK?!?!?
+			this.regPopulation.add(new Pair<Double,Registrar>(0.0, new Registrar(url, true, allPeople, allCourses, underfilledProjects)));
+			this.aux.add(null);  //For use in the mergesort ...hmmm?
 		}
 		fillProjects();
 	}
@@ -91,12 +68,25 @@ public class GeneticAlgo{
 	 * @return
 	 */
 	public void fillProjects(){
-		for(int i=0;i<this.population.size();i++){
-			Registrar temp = fillRegistrar(this.population.get(i).getValue());
+		for(int i = 0; i < this.regPopulation.size(); i++){
+			Registrar temp = fillRegistrar(this.regPopulation.get(i).getValue());
 
 			double val = evaluateSolutionToTotalScore(temp);
-			this.population.set(i,new Pair<Double,Registrar>(val,temp));
+			this.regPopulation.set(i,new Pair<Double,Registrar>(val,temp));
 		}
+	}
+
+	private Registrar fillRegistrar(Registrar reg) {
+		Person nextP;
+		//while registrar has more unsorted people
+		while (reg.hasMorePeople()) {
+			nextP = reg.getNextPerson().getClone();  //added getClone - may need to take out?
+
+			while (nextP != null) {
+				nextP = reg.tryPlacePerson(nextP);
+			}
+		}
+		return reg;
 	}
 
 	/**
@@ -121,6 +111,33 @@ public class GeneticAlgo{
 	}
 
 	/**
+	 * Calculates a student's score, based solely on previous project placement data
+	 *
+	 * Calculates via sum of previous placements * 100
+	 *
+	 * Iff student was not in a project in a given year, they are given a random value from the normal distribution of
+	 * projects
+	 *
+	 * @param studentId
+	 * @return
+	 */
+	private int calculateScore(int studentId) {
+        int[] prevScores = db.getPrevYears(studentId);
+        int score=0;
+        for (int i=0; i<3;i++){
+            if (prevScores[i]>0) {
+                score += prevScores[i]*100;
+            }
+            else {
+                //generate a random number to switch it up
+                score += Math.abs(dylan.getNextNormalValue() * 100);
+            }
+        }
+        return score;
+    }
+
+
+	/**
 	 * getProjectVal
 	 *
 	 * heuristic
@@ -137,7 +154,7 @@ public class GeneticAlgo{
 		double projectScore = 0;
 
 		for(int i=0;i<arr.size();i++){
-			projectScore+= calculatedStudentVal(arr.get(i));
+			projectScore += calculatedStudentVal(arr.get(i));
 		}
 
 		//Devalues underfilled projects
@@ -172,7 +189,7 @@ public class GeneticAlgo{
 	 * Begins mergesort process; array with indexes 0 to population size
 	 */
 	public void sort() {
-		sort(0,population.size()-1);
+		sort(0, regPopulation.size()-1);
 	}
 
 	/**
@@ -205,7 +222,7 @@ public class GeneticAlgo{
 		//PRE:  nums is sorted from mid+1 to hi
 		//POST: nums is sorted from lo to hi
 		for (int i = lo; i <= hi; i++){
-			this.aux.set(i,this.population.get(i));
+			this.aux.set(i,this.regPopulation.get(i));
 		}
 		int i = lo;
 		int j = mid + 1;
@@ -213,73 +230,69 @@ public class GeneticAlgo{
 		for (int k = lo; k <= hi; k++){
 			//Case 3 - all that remains is the right half
 			if (i > mid)
-				this.population.set(k,this.aux.get(j++));
+				this.regPopulation.set(k,this.aux.get(j++));
 			//Case 4 - all that remains is the left half
 			else if (j > hi)
-				this.population.set(k,this.aux.get(i++));
+				this.regPopulation.set(k,this.aux.get(i++));
 			//Case 1 - right val is less than left val
 			else if (this.aux.get(j).getKey() > this.aux.get(i).getKey())
-				this.population.set(k,this.aux.get(j++));
+				this.regPopulation.set(k,this.aux.get(j++));
 			//case 2 - left val is less than right val
 			else 
-				this.population.set(k,this.aux.get(i++));
+				this.regPopulation.set(k,this.aux.get(i++));
 		}
 	}
 
 	public void killAndMate(){
-		for(int i=0;((2*this.size)/3)+(i/2)<this.size;i+=2){
-			Registrar pair = matePair(this.population.get(i).getValue(),this.population.get(i+1).getValue());
+		//Takes pairs of registrars from first 2/3s of AL, mates them, places them in last 1/3 of AL
+		for(int i = 0; ((2 * this.numRegistrars) / 3) + (i / 2) < this.numRegistrars; i += 2){
+			Registrar pair = matePair(regPopulation.get(i).getValue(), regPopulation.get(i + 1).getValue());
 
-			this.population.set(((2*this.size)/3)+(i/2), new Pair<Double, Registrar>(evaluateSolutionToTotalScore(pair), pair));
+			this.regPopulation.set(((2 * numRegistrars) / 3) + (i / 2), new Pair<Double, Registrar>(evaluateSolutionToTotalScore(pair), pair));
 		}
 	}
 
 	private int randnum(int max) {
-		return (int)(Math.random()*(max+1));
+		return (int)(Math.random() * (max + 1));
 	}
 
 	private Registrar matePair(Registrar reg1, Registrar reg2) {
+
 		Registrar regchild = new Registrar(url, true, allPeople, allCourses, underfilledProjects);
+
 		while(regchild.hasMorePeople()){
-			Person curperson = regchild.getNextPerson();
-			int pref1 = reg1.getStudentPref(curperson.getPersonID());
+			Person curperson = regchild.getNextPerson().getClone();  // Added getClone
+			int pref1 = reg1.getStudentPref(curperson.getPersonID());  //What's the difference between pref1 and pref2
 			int pref2 = reg2.getStudentPref(curperson.getPersonID());
 			
 
-			if(randnum(100)<2){
+			if(randnum(100) < 2){  //2% chance that a person is randomly placed
 				regchild.randPlace(curperson);
-			} else if (randnum(1)==1 && regchild.canPlace(curperson,pref1)){
-				regchild.place(curperson,pref1);
-			} else if (regchild.canPlace(curperson,pref2)){
-				regchild.place(curperson,pref2);
-			} else if (regchild.canPlace(curperson,pref1)){
-				regchild.place(curperson,pref1);
-			} else {
+			}
+			else if (randnum(1) == 1 && regchild.canPlace(curperson, pref1)){ //50% chance you test that you can place in pref1
+				regchild.place(curperson, pref1);
+			}
+			else if (regchild.canPlace(curperson, pref2)){
+				regchild.place(curperson, pref2);
+			}
+			else if (regchild.canPlace(curperson, pref1)){  //if chance from above didn't test pref1 and pref2 didn't work
+				regchild.place(curperson, pref1);
+			}
+			else {								//Nothing worked, good luck friends
 				regchild.randPlace(curperson);
 			}
 		}
 		return regchild;
 	}
 
-	private Registrar fillRegistrar(Registrar reg) {
-		Person nextP;
-		//while registrar has more unsorted people
-		while (reg.hasMorePeople()) {
-			nextP = reg.getNextPerson();
 
-			while (nextP != null) {
-				nextP = reg.tryPlacePerson(nextP);
-			}
-		}
-		return reg;
-	}
 
 	/**
 	 *
 	 */
 	public void printVals(){
-		for(int i=0;i<population.size();i++){
-			System.out.println("\n\nScore=" + population.get(i).getKey());
+		for(int i = 0; i< regPopulation.size(); i++){
+			System.out.println("\n\nScore=" + regPopulation.get(i).getKey());
 		}
 	}
 
@@ -287,9 +300,9 @@ public class GeneticAlgo{
 	 *
 	 */
 	public void print(){
-		for(int i=0;i<population.size();i++){
-			System.out.println("\n\nScore=" + population.get(i).getKey()+ " for :");
-			population.get(i).getValue().outputResults();
+		for(int i = 0; i< regPopulation.size(); i++){
+			System.out.println("\n\nScore=" + regPopulation.get(i).getKey()+ " for :");
+			regPopulation.get(i).getValue().outputResults();
 		}
 	}
 
@@ -298,6 +311,6 @@ public class GeneticAlgo{
 	 * @return- top Person
 	 */
 	public Registrar getTopReg(){
-		return this.population.get(0).getValue();
+		return this.regPopulation.get(0).getValue();
 	}
 }

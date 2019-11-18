@@ -129,7 +129,7 @@ class Registrar {
             unluckyPeople.add(p);
             return;
         }
-        int projectPref = p.prefToProjectID(curChoice);//db.getPreference(p.getPersonID(),optionsLeft.get(0));
+        int projectPref = p.prefToProjectID(curChoice);//db.getPreference(p.getPersonID(),optionsLeft.get(0)
         p.setCurrentPreference(curChoice);
         allCourses.get(projectPref).addStudent(p);
     }
@@ -142,8 +142,8 @@ class Registrar {
      * @param pref - preference
      */
     public void place(Person p, int pref){
-        if(!canPlace(p,pref)){
-            p.setCurrentPreference(9);
+        if(!canPlace(p, pref)){
+          //  p.setCurrentPreference(9);
             randPlace(p);
             return;
         }
@@ -151,7 +151,7 @@ class Registrar {
             unluckyPeople.add(p);
             return;
         }
-        int projectPref=p.prefToProjectID(pref);//db.getPreference(p.getPersonID(),pref);
+        int projectPref = p.prefToProjectID(pref);//db.getPreference(p.getPersonID(),pref);
         p.setCurrentPreference(pref);
         allCourses.get(projectPref).addStudent(p);
     }
@@ -171,10 +171,11 @@ class Registrar {
             return null;
         }
 
+        //nextPrefChoice - it's a project id????? wtf...
         int nextPrefChoice = p.prefToProjectID(p.getCurrentPreference());//db.getPreference(p.getPersonID(), p.getCurrentPreference());
 
-        if (underfilledIDs.contains(nextPrefChoice))
-			allCourses.remove(nextPrefChoice);
+//        if (underfilledIDs.contains(nextPrefChoice))
+//			allCourses.remove(nextPrefChoice);
 
 		//If they're out of choices, minvalue or 0 will be returned
 		if (nextPrefChoice == Integer.MIN_VALUE || nextPrefChoice == 0) {
@@ -182,7 +183,7 @@ class Registrar {
             return null;
         }
 
-		//Try to place them in the next person
+		//Try to place them in the next project
         Project nextProject = allCourses.get(nextPrefChoice);
 		if (nextProject == null) { //if project is nonexistent, add them to unluckyPeople
 		    unluckyPeople.add(p);
@@ -338,13 +339,17 @@ class Registrar {
                 outputStats.clear();
                
                 outputStats.add(curPerson.getPersonID()); //Id
-                outputStats.add(curPerson.getCurrentPreference()); //Choice
+
+                outputStats.add(db.getPrefNumForProj(curPerson.getPersonID(), tempList.get(i))); //Actually correct preference number for a student and a project
+ //               outputStats.add(curPerson.getCurrentPreference()); //Choice  -- still wrong
                 outputStats.add(tempList.get(i)); //projectId
                 outputStats.add(db.getGender(curPerson.getPersonID())); //Gender
                 outputStats.add(db.getGrade(curPerson.getPersonID())); //grade
                 outputStats.add((curPerson.getScore())); //score
 
-                scores[curPerson.getCurrentPreference()-1]++;
+                scores[db.getPrefNumForProj(curPerson.getPersonID(), tempList.get(i))-1]++; //Actually correct preference number for a student and a project
+
+  //              scores[curPerson.getCurrentPreference()-1]++;  //Still wrong...
                 saver.write(outputStats);
             }
         }
