@@ -55,9 +55,10 @@ public class GeneticAlgo{
 	 */
 	public void populate(int size){
 		this.numRegistrars = size;
+
 		for(int i = 0; i < numRegistrars; i++){
 			//The Double is the score of how good the specific registrar is... WE THINK?!?!?
-			this.regPopulation.add(new Pair<Double,Registrar>(0.0, new Registrar(url, true, allPeople, allCourses, underfilledProjects)));
+			this.regPopulation.add(new Pair<Double,Registrar>(0.0, new Registrar(url,true, allPeople, allCourses, underfilledProjects)));
 			this.aux.add(null);  //For use in the mergesort ...hmmm?
 		}
 		fillProjects();

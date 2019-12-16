@@ -16,6 +16,7 @@ public class RunGenetic{
 
 		GeneticAlgo gen = new GeneticAlgo(url, new ArrayList<Integer>());
 		gen.populate(populationSize);
+		//System.out.println("AHHH"+gen.getTopReg().isMatchingData());
 		gen.sort();
 
 		System.out.println("Genetic Algorithm #1");
@@ -52,6 +53,6 @@ public class RunGenetic{
 			topReg = gen.getTopReg();
 		}
 		topReg.outputResultsToCSV();
-		System.out.println(topReg.isMatchingData());
+		//System.out.println(topReg.isMatchingData());
 	}
 }

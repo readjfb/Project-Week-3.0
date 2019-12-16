@@ -92,4 +92,14 @@ public class Project{
 	public String toString() {
 		return "Project#" + projectID+ enrolledStudents.toString();
 	}
+
+	public boolean isMatchingData(){
+		for(Person p:enrolledStudents){
+			if(this.projectID != p.prefToProjectID(p.getCurrentPreference())){
+				System.out.println("Student #"+p.getPersonID()+" thinks that they are in their #"+p.getCurrentPreference()+" choice (#"+p.prefToProjectID(p.getCurrentPreference())+"), but they are actaully in pweek #"+this.projectID);
+				return false;
+			}
+		}
+		return true;
+	}
 }

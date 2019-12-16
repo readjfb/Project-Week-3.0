@@ -45,13 +45,6 @@ public class Person{
 		this.prefProjectIDs =new int[8];
 	}
 
-//	public Person(int studentID){
-//		this.personID = studentID;
-//		this.currentPreference  = 1;
-//		this.score = 0;
-//		this.prefProjectIDs =new int[8];
-//	}
-
 	public Person(int id, int score, String gender){
 
 		this.gender = gender;
@@ -61,54 +54,11 @@ public class Person{
 		this.prefProjectIDs =new int[8];
 	}
 
-	//getter
-	public int getPersonID(){
-
-		return this.personID;
-	}
-	
-	public int[] getPrefProjectIDs(){
-
-		return this.prefProjectIDs;
-	}
-
-	public void setCurrentPreference(int x){
-
-		if (x == 1){
-//			System.out.println("We may be on to something");
-		}
-		this.currentPreference = x;
-	}
-
-//	public void setProjectID(int id, int pref){
-//		this.prefProjectIDs[pref]=id;
-//	}
-
-	public void setProjectIDs(int[] arr) {
-
-		this.prefProjectIDs = arr.clone();
-	}
-
-	public int prefToProjectID(int pref){
-
-		return prefProjectIDs[pref-1];
-	}
-
-	//getter
-	public int getCurrentPreference(){
-
-		if (this.currentPreference > 1){
-//			System.out.println("Test message");
-		}
-		return this.currentPreference;
-	}
-
-
-	public void increaseCurrentPreference() {
-
-		this.currentPreference++;
-	}
-
+	//getters
+	public int getPersonID(){ return this.personID; }
+	public int[] getPrefProjectIDs(){ return this.prefProjectIDs; }
+	public int getCurrentPreference(){ return this.currentPreference; }
+	public int getScore(){ return this.score; }
 
 	public Person getClone(){
 
@@ -117,15 +67,29 @@ public class Person{
 		return p;
 	}
 
-	//getter
-	public int getScore(){
+	//setters
+	public void setCurrentPreference(int x){ this.currentPreference = x; }
+	public void setProjectIDs(int[] arr) { this.prefProjectIDs = arr.clone(); }
+	public void increaseCurrentPreference() { this.currentPreference++; }
 
-		return this.score;
+
+	public int prefToProjectID(int pref){
+
+		return prefProjectIDs[pref-1];
+	}
+
+	public int projIDToPref(int projID){
+		for(int i=0;i<prefProjectIDs.length;i++){
+			if(prefProjectIDs[i]==projID){
+				return i+1;
+			}
+		}
+		return -1;
 	}
 
 	public boolean isMatchingData(int[] dbprefs){
-		for(int i=0;i<dbprefs.length;i++){
-			if(dbprefs[i]!=prefProjectIDs[i]){
+		for(int i=0; i < dbprefs.length; i++) {
+			if(dbprefs[i] != prefProjectIDs[i]) {
 				return false;
 			}
 		}
