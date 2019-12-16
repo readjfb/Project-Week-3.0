@@ -86,7 +86,7 @@ public class Person{
 
 	public void setProjectIDs(int[] arr) {
 
-		this.prefProjectIDs = arr;
+		this.prefProjectIDs = arr.clone();
 	}
 
 	public int prefToProjectID(int pref){
@@ -121,6 +121,15 @@ public class Person{
 	public int getScore(){
 
 		return this.score;
+	}
+
+	public boolean isMatchingData(int[] dbprefs){
+		for(int i=0;i<dbprefs.length;i++){
+			if(dbprefs[i]!=prefProjectIDs[i]){
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public String toString() {

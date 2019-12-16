@@ -36,6 +36,7 @@ public class RunGenetic{
 		gen2.populate(populationSize);
 		gen2.sort();
 
+		Registrar topReg;
 		if (badProjects.size() > 0) {
 			System.out.println("Genetic Algorithm #2");
 
@@ -45,10 +46,12 @@ public class RunGenetic{
 				gen2.sort();
 			}
 			System.out.println();
-			gen2.getTopReg().outputResultsToCSV();
+			topReg = gen2.getTopReg();
 		}
 		else {
-			gen.getTopReg().outputResultsToCSV();
+			topReg = gen.getTopReg();
 		}
+		topReg.outputResultsToCSV();
+		System.out.println(topReg.isMatchingData());
 	}
 }

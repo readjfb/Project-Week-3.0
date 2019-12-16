@@ -378,5 +378,14 @@ class Registrar {
         }
     }
 
+    public boolean isMatchingData(){
+        db = new Database(this.url);
+        for(Person p: allPeople){
+            if(!p.isMatchingData(db.getPreferences(p.getPersonID()))){
+                return false;
+            }
+        }
+        return true;
+    }
 
 }
