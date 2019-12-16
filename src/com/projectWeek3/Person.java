@@ -14,29 +14,7 @@ public class Person{
 
 	private int score; //Person's priority at the current time
 
-	/*
-	* I wasn't positive exactly what constructors we were going to need
-	* so I just made all of them. We can delete the redundant ones later
-	*/
-//	public Person(int studentID, String gender, int gradYear){
-//		this.personID = studentID;
-//		this.gender = gender;
-//
-//		SimpleDateFormat formatter = new SimpleDateFormat("MMyyyy");
-//		Date date = new Date();
-//		String strDate = formatter.format(date);
-//
-//		int month = Integer.parseInt(strDate.substring(0, 2));
-//		int year = Integer.parseInt(strDate.substring(2));
-//		if(month > 8)
-//			year++; // if it is past august add 1 to the year
-//		this.grade = 4 - (gradYear - year);
-//
-//
-//		this.prefProjectIDs = new int[8];
-//		this.currentPreference = 1;
-//	}
-
+	//constructors
 	public Person(int studentID, int currentPreference, int score){
 
 		this.personID = studentID;
