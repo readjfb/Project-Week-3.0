@@ -6,7 +6,7 @@ public class RunGenetic{
 
 	public static void main(String[] args){
 
-		int totalGenerations = 100; //10000
+		int totalGenerations = 2500; //10000
 		int populationSize = 100; //100
 
 		System.out.println("Setting Up Algorithm #1");
