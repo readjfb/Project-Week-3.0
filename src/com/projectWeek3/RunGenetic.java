@@ -6,7 +6,7 @@ public class RunGenetic{
 
 	public static void main(String[] args){
 
-		int totalGenerations = 100; //10000
+		int totalGenerations = 2500; //10000
 		int populationSize = 100; //100
 
 		System.out.println("Setting Up Algorithm #1");
@@ -16,6 +16,7 @@ public class RunGenetic{
 
 		GeneticAlgo gen = new GeneticAlgo(url, new ArrayList<Integer>());
 		gen.populate(populationSize);
+		//System.out.println("AHHH"+gen.getTopReg().isMatchingData());
 		gen.sort();
 
 		System.out.println("Genetic Algorithm #1");
@@ -36,6 +37,7 @@ public class RunGenetic{
 		gen2.populate(populationSize);
 		gen2.sort();
 
+		Registrar topReg;
 		if (badProjects.size() > 0) {
 			System.out.println("Genetic Algorithm #2");
 
@@ -45,10 +47,12 @@ public class RunGenetic{
 				gen2.sort();
 			}
 			System.out.println();
-			gen2.getTopReg().outputResultsToCSV();
+			topReg = gen2.getTopReg();
 		}
 		else {
-			gen.getTopReg().outputResultsToCSV();
+			topReg = gen.getTopReg();
 		}
+		topReg.outputResultsToCSV();
+		//System.out.println(topReg.isMatchingData());
 	}
 }

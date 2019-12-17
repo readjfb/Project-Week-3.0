@@ -14,29 +14,7 @@ public class Person{
 
 	private int score; //Person's priority at the current time
 
-	/*
-	* I wasn't positive exactly what constructors we were going to need
-	* so I just made all of them. We can delete the redundant ones later
-	*/
-//	public Person(int studentID, String gender, int gradYear){
-//		this.personID = studentID;
-//		this.gender = gender;
-//
-//		SimpleDateFormat formatter = new SimpleDateFormat("MMyyyy");
-//		Date date = new Date();
-//		String strDate = formatter.format(date);
-//
-//		int month = Integer.parseInt(strDate.substring(0, 2));
-//		int year = Integer.parseInt(strDate.substring(2));
-//		if(month > 8)
-//			year++; // if it is past august add 1 to the year
-//		this.grade = 4 - (gradYear - year);
-//
-//
-//		this.prefProjectIDs = new int[8];
-//		this.currentPreference = 1;
-//	}
-
+	//constructors
 	public Person(int studentID, int currentPreference, int score){
 
 		this.personID = studentID;
@@ -44,13 +22,6 @@ public class Person{
 		this.score = score;
 		this.prefProjectIDs =new int[8];
 	}
-
-//	public Person(int studentID){
-//		this.personID = studentID;
-//		this.currentPreference  = 1;
-//		this.score = 0;
-//		this.prefProjectIDs =new int[8];
-//	}
 
 	public Person(int id, int score, String gender){
 
@@ -61,54 +32,11 @@ public class Person{
 		this.prefProjectIDs =new int[8];
 	}
 
-	//getter
-	public int getPersonID(){
-
-		return this.personID;
-	}
-	
-	public int[] getPrefProjectIDs(){
-
-		return this.prefProjectIDs;
-	}
-
-	public void setCurrentPreference(int x){
-
-		if (x == 1){
-//			System.out.println("We may be on to something");
-		}
-		this.currentPreference = x;
-	}
-
-//	public void setProjectID(int id, int pref){
-//		this.prefProjectIDs[pref]=id;
-//	}
-
-	public void setProjectIDs(int[] arr) {
-
-		this.prefProjectIDs = arr;
-	}
-
-	public int prefToProjectID(int pref){
-
-		return prefProjectIDs[pref-1];
-	}
-
-	//getter
-	public int getCurrentPreference(){
-
-		if (this.currentPreference > 1){
-//			System.out.println("Test message");
-		}
-		return this.currentPreference;
-	}
-
-
-	public void increaseCurrentPreference() {
-
-		this.currentPreference++;
-	}
-
+	//getters
+	public int getPersonID(){ return this.personID; }
+	public int[] getPrefProjectIDs(){ return this.prefProjectIDs; }
+	public int getCurrentPreference(){ return this.currentPreference; }
+	public int getScore(){ return this.score; }
 
 	public Person getClone(){
 
@@ -117,10 +45,33 @@ public class Person{
 		return p;
 	}
 
-	//getter
-	public int getScore(){
+	//setters
+	public void setCurrentPreference(int x){ this.currentPreference = x; }
+	public void setProjectIDs(int[] arr) { this.prefProjectIDs = arr.clone(); }
+	public void increaseCurrentPreference() { this.currentPreference++; }
 
-		return this.score;
+
+	public int prefToProjectID(int pref){
+
+		return prefProjectIDs[pref-1];
+	}
+
+	public int projIDToPref(int projID){
+		for(int i=0;i<prefProjectIDs.length;i++){
+			if(prefProjectIDs[i]==projID){
+				return i+1;
+			}
+		}
+		return -1;
+	}
+
+	public boolean isMatchingData(int[] dbprefs){
+		for(int i=0; i < dbprefs.length; i++) {
+			if(dbprefs[i] != prefProjectIDs[i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public String toString() {

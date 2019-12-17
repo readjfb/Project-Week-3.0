@@ -140,7 +140,7 @@ public class Database {
         int[] prevYears = new int[3];
         String sql;
 
-        sql = "SELECT Rank19, Rank18, Rank17 FROM StudentPrevAvgs WHERE StudentID = (?)";
+        sql = "SELECT Rank2, Rank1, Rank0 FROM StudentPrevAvgs WHERE StudentID = (?)";
 
         try {
             PreparedStatement stmt = conn.prepareStatement(sql);

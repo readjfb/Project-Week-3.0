@@ -18,11 +18,11 @@ class Registrar {
      *
      * @param url - database location
      * @param shuffle -randomize allPeople?
-     * @param allPeople
-     * @param allCourses
+     * @param allPeopleinput
+     * @param allCoursesinput
      * @param underfilledIDs
      */
-    public Registrar(String url, boolean shuffle, ArrayList<Person> allPeople, HashMap<Integer, Project> allCourses, ArrayList<Integer> underfilledIDs) {
+    public Registrar(String url, boolean shuffle, ArrayList<Person> allPeopleinput, HashMap<Integer, Project> allCoursesinput, ArrayList<Integer> underfilledIDs) {
 		//If there are underfilled projects, remove them from the HashMap of all courses, as we do not want to place a
         // student in a project that cannot run
         this.underfilledIDs = underfilledIDs;
@@ -34,34 +34,35 @@ class Registrar {
         //set url to it's final urlValue
         this.url=url;
 
-        for (Person person : allPeople) {
+        for (Person person : allPeopleinput) {
             this.allPeople.add(person.getClone());
         }
-
         //iterate through each course
-        for (Map.Entry<Integer, Project> entry : allCourses.entrySet()) {
-            Integer k = entry.getKey();
-            Project v = entry.getValue();
-            ArrayList<Person> interest = checkInterest(v.getProjectID());
+        for (Map.Entry<Integer, Project> entry : allCoursesinput.entrySet()) {
+            Integer ID = entry.getKey();
+            Project project = entry.getValue();
+            ArrayList<Person> interest = checkInterest(ID);
             int amountOfInterest = interest.size();
 
-            //If there's adiquate amount of interest in a project, add it
-            if (amountOfInterest > v.getMinStudents()) {
-                this.allCourses.put(v.getProjectID(), v.getClone());
+            //If there's adequate amount of interest in a project, add it
+            if (amountOfInterest > project.getMinStudents()) {
+                this.allCourses.put(ID, project.getClone());
             }
             //if there is exactly the number of students
-            else if (amountOfInterest == v.getMinStudents()) {
-                Project exactlyFilled = v.getClone();
+            else if (amountOfInterest == project.getMinStudents()) {
+                Project exactlyFilled = project.getClone();
                 for (Person person : interest) {
                     exactlyFilled.addStudent(person);
+                    person.setCurrentPreference(person.projIDToPref(exactlyFilled.getProjectID()));
                     this.allPeople.remove(person);
                 }
-                this.allCourses.put(v.getProjectID(), exactlyFilled);
+                this.allCourses.put(ID, exactlyFilled);
             }
+
             //else, add the course to underfilledIDs, to keep track
             //NOTE: Added this recently
             else {
-                this.underfilledIDs.add(k);
+                this.underfilledIDs.add(ID);
             }
         }
 
@@ -70,6 +71,14 @@ class Registrar {
 
         currentIndex = 0;
         sizeOfPeople = this.allPeople.size();
+    }
+
+    public void printArr(int[] arr){
+        System.out.print("[");
+        for(int i:arr){
+            System.out.print(i+",");
+        }
+        System.out.println("]");
     }
 
     /**
@@ -98,7 +107,7 @@ class Registrar {
     private ArrayList<Person> checkInterest(int projectID){
 		ArrayList<Person> interest = new ArrayList<Person>();
 		//for each person
-		for(Person person : allPeople){
+		for(Person person : this.allPeople){
 			//check if they signed up for projectID's project in top 5
 			int[] projects = person.getPrefProjectIDs();
 			for(int i = 0; i < 5; i++){
@@ -378,5 +387,27 @@ class Registrar {
         }
     }
 
+
+
+    public boolean isMatchingData(){
+        //checks to make sure each person in each pweek thinks they are in the pweek they are in(acording to their pref #)
+        if(!(allCourses.size()==0)) {
+            for (Map.Entry<Integer, Project> entry : allCourses.entrySet()) {
+                Project p = entry.getValue();
+                if (!p.isMatchingData()) {
+                    return false;
+                }
+            }
+        }
+
+        //checks to make sure that each persons preferences match the db ones
+        db = new Database(this.url);
+        for(Person p: allPeople){
+            if(!p.isMatchingData( db.getPreferences(p.getPersonID()) )){
+                return false;
+            }
+        }
+        return true;
+    }
 
 }
