@@ -270,6 +270,8 @@ class Registrar {
         return allCourses;
     }
 
+    public int getSizeOfPeople() { return this.sizeOfPeople; }
+
     /**
      * public void printProjects()
      *

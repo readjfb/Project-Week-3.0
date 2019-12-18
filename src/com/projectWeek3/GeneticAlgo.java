@@ -246,10 +246,10 @@ public class GeneticAlgo{
 
 	public void killAndMate(){
 		//Takes pairs of registrars from first 2/3s of AL, mates them, places them in last 1/3 of AL
-		for(int i = 0; ((2 * this.numRegistrars) / 3) + (i / 2) < this.numRegistrars; i += 2){
-			Registrar pair = matePair(regPopulation.get(i).getValue(), regPopulation.get(i + 1).getValue());
+		for(int i = 0; i < this.numRegistrars/2; i++){
+			Registrar child = matePair(regPopulation.get(i).getValue(), regPopulation.get(i + 1).getValue());
 
-			this.regPopulation.set(((2 * numRegistrars) / 3) + (i / 2), new Pair<Double, Registrar>(evaluateSolutionToTotalScore(pair), pair));
+			this.regPopulation.set(this.numRegistrars/2 + i, new Pair<Double, Registrar>(evaluateSolutionToTotalScore(child), child));
 		}
 	}
 
@@ -259,31 +259,44 @@ public class GeneticAlgo{
 
 	private Registrar matePair(Registrar reg1, Registrar reg2) {
 
-		Registrar regchild = new Registrar(url, true, allPeople, allCourses, underfilledProjects);
+		Registrar regChild = new Registrar(url, true, allPeople, allCourses, underfilledProjects);
 
-		while(regchild.hasMorePeople()){
-			Person curperson = regchild.getNextPerson().getClone();  // Added getClone
-			int pref1 = reg1.getStudentPref(curperson.getPersonID());  //What's the difference between pref1 and pref2
-			int pref2 = reg2.getStudentPref(curperson.getPersonID());
-			
-
-			if(randnum(100) < 2){  //2% chance that a person is randomly placed
-				regchild.randPlace(curperson);
-			}
-			else if (randnum(1) == 1 && regchild.canPlace(curperson, pref1)){ //50% chance you test that you can place in pref1
-				regchild.place(curperson, pref1);
-			}
-			else if (regchild.canPlace(curperson, pref2)){
-				regchild.place(curperson, pref2);
-			}
-			else if (regchild.canPlace(curperson, pref1)){  //if chance from above didn't test pref1 and pref2 didn't work
-				regchild.place(curperson, pref1);
-			}
-			else {								//Nothing worked, good luck friends
-				regchild.randPlace(curperson);
+		//changes a random person
+		//TODO: make it so the person DEF gets placed in that pweek, and use a kind of stable marriage to deal w overfill
+		int changingIndex = randnum(regChild.getSizeOfPeople());
+		for(int i = 0; regChild.hasMorePeople(); i++) {
+			Person curperson = regChild.getNextPerson().getClone();
+			if (i == changingIndex) {
+				regChild.place(curperson, reg2.getStudentPref(curperson.getPersonID()));
+			} else {
+				regChild.place(curperson, reg1.getStudentPref(curperson.getPersonID()));
 			}
 		}
-		return regchild;
+		return regChild;
+
+//		while(regchild.hasMorePeople()){
+//			Person curperson = regchild.getNextPerson().getClone();  // Added getClone
+//			int pref1 = reg1.getStudentPref(curperson.getPersonID());  //What's the difference between pref1 and pref2
+//			int pref2 = reg2.getStudentPref(curperson.getPersonID());
+//
+//
+//			if(randnum(100) < 2){  //2% chance that a person is randomly placed
+//				regchild.randPlace(curperson);
+//			}
+//			else if (randnum(1) == 1 && regchild.canPlace(curperson, pref1)){ //50% chance you test that you can place in pref1
+//				regchild.place(curperson, pref1);
+//			}
+//			else if (regchild.canPlace(curperson, pref2)){
+//				regchild.place(curperson, pref2);
+//			}
+//			else if (regchild.canPlace(curperson, pref1)){  //if chance from above didn't test pref1 and pref2 didn't work
+//				regchild.place(curperson, pref1);
+//			}
+//			else {								//Nothing worked, good luck friends
+//				regchild.randPlace(curperson);
+//			}
+//		}
+//		return regchild;
 	}
 
 
