@@ -314,4 +314,23 @@ public class GeneticAlgo{
 	public Registrar getTopReg(){
 		return this.regPopulation.get(0).getValue();
 	}
+
+	//Returns student ID's and their eight choices in a 2D ArrayList
+	//Used for testing by RunGenetic
+	public ArrayList outputDB(){
+		ArrayList allData = new ArrayList();
+
+		//Each row contains StudentID followed by eight project choices (descending order)
+		ArrayList studentData = new ArrayList();
+		for(int i = 0; i < allPeople.size(); i++){
+			studentData.clear();
+			studentData.add(allPeople.get(i).getPersonID());
+			//Adds the eight choices
+			for(int j = 0 ;j < 8; j ++){
+				studentData.add(allPeople.get(i).getPrefProjectIDs()[j]);
+			}
+			allData.add(studentData.clone());
+		}
+		return(allData);
+	}
 }
